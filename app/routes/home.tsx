@@ -1,5 +1,4 @@
 import type { Route } from "./+types/home";
-import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { BlogPost } from "~/components/BlogPost";
 import ExperienceItem from "~/components/ExperienceItem";
@@ -23,10 +22,10 @@ export default function Home() {
   if (!mounted) return null;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
+    <div
+      // initial={{ opacity: 0, y: 20 }}
+      // animate={{ opacity: 1, y: 0 }}
+      // transition={{ duration: 0.5 }}
       className="max-w-4xl mx-auto space-y-16"
     >
       <header className="flex justify-between align-top">
@@ -116,6 +115,6 @@ export default function Home() {
           </a>
         </div>
       </section>
-    </motion.div>
+    </div>
   );
 }

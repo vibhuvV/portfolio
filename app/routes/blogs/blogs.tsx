@@ -1,4 +1,4 @@
-import { readPostsName } from "~/lib/utils.server3";
+import { readPostsName } from "~/lib/utils.server";
 import type { Route } from "./+types/blogs";
 
 export function meta({}: Route.MetaArgs) {
@@ -8,7 +8,7 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-export async function clientLoader({}: Route.LoaderArgs) {
+export async function loader({}: Route.LoaderArgs) {
   const blogs = await readPostsName();
   return { blogs };
 }
