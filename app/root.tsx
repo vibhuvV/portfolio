@@ -26,7 +26,7 @@ export const links: Route.LinksFunction = () => [
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -34,7 +34,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        {children}
+        <main className="min-h-screen bg-gradient-to-br from-gray-800 to-gray-950 text-gray-100 py-16 px-4 sm:px-6 lg:px-8 selection:bg-gray-400">
+          {children}
+        </main>
         <ScrollRestoration />
         <Scripts />
       </body>
@@ -63,7 +65,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   }
 
   return (
-    <main className="pt-16 p-4 container mx-auto">
+    <>
       <h1>{message}</h1>
       <p>{details}</p>
       {stack && (
@@ -71,6 +73,6 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
           <code>{stack}</code>
         </pre>
       )}
-    </main>
+    </>
   );
 }
