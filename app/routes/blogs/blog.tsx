@@ -1,4 +1,4 @@
-import { readPost } from "~/lib/utils.server";
+import { readPost } from "~/lib/utils.server3";
 import type { Route } from "./+types/blog";
 
 export function meta({}: Route.MetaArgs) {
@@ -8,7 +8,7 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-export async function loader({ params }: Route.LoaderArgs) {
+export async function clientLoader({ params }: Route.LoaderArgs) {
   const markdown = await readPost(params.blogId);
   return { markdown };
 }
