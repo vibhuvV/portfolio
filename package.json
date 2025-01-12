@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "cross-env NODE_ENV=production react-router build && cp ./build/client/gh-test-portfolio/__manifest ./build/client/__manifest",
+    "build": "cross-env NODE_ENV=production react-router build && cp ./build/client/gh-test-portfolio/__manifest ./build/client/__manifest && cp ./build/client/gh-test-portfolio/index.html ./build/client/index.html",
     "dev": "react-router dev",
     "start": "cross-env NODE_ENV=production react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc"
