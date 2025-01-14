@@ -1,25 +1,56 @@
-import { Mail } from "lucide-react";
-import { SiGithub, SiLinkerd } from "@icons-pack/react-simple-icons";
+import { Mail, LinkedinIcon, FileUser } from "lucide-react";
+import { SiGithub } from "@icons-pack/react-simple-icons";
 
 export const MY_DETAILS = {
   name: "Vaibhav",
   designation: "Frontend Developer",
   email: "dev.vaibhaverma@gmail.com",
-  summary: `I'm a passionate frontend developer with 4 years of experience
-  creating beautiful and functional web applications. I specialize in
-  modern JavaScript frameworks and have a keen eye for design and user
-  experience. My goal is to craft elegant, efficient, and user-centric
-  digital experiences that push the boundaries of what's possible on
-  the web.`,
+  summary: `I’m Vaibhav Verma, a frontend web developer with expertise in React, TypeScript,
+  and SCSS. I’m passionate about solving complex problems, building scalable solutions, and
+  continuously improving my skills. Currently, I’m exploring Golang and backend development
+  while developing dynamic, multi-tenant web applications. Let’s create innovative web solutions
+  together!`,
 
   experience: [
     {
-      title: "Senior Frontend Developer",
-      company: "Tech Innovators Inc.",
+      title: "Frontend Developer - II",
+      company: "Kwalee",
       description: [
-        "Lead frontend development for multiple high-traffic web applications, implementing modern React practices and optimizing performance.",
+        "Developed scalable dashboards and optimized pipelines, improving user engagement, retention, and operational efficiency.",
       ],
-      period: "2021 - Present",
+      period: "January, 2024 - Present",
+    },
+    {
+      title: "Frontend Developer - II",
+      company: "Josh Technology Group",
+      description: [
+        "Built secure, user-centric solutions for a parking platform, enhancing security, scalability, and client satisfaction.",
+      ],
+      period: "October, 2022 - December, 2023",
+    },
+    {
+      title: "Frontend Developer",
+      company: "Josh Technology Group",
+      description: [
+        "Delivered high-quality web applications and reusable UI libraries, boosting development efficiency across projects.",
+      ],
+      period: "August, 2021 - September, 2022",
+    },
+    {
+      title: "Frontend Developer - Intern",
+      company: "Josh Technology Group",
+      description: [
+        "Collaborated with cross-functional teams to create data-driven dashboards, improving stakeholder decision-making.",
+      ],
+      period: "January, 2021 - July, 2021",
+    },
+    {
+      title: "Web Developer - Trainee",
+      company: "ONS Tech",
+      description: [
+        "Gained full-stack web development experience by assisting in building access management systems and admin dashboards.",
+      ],
+      period: "March, 2019 - July, 2019",
     },
   ],
 
@@ -31,12 +62,16 @@ export const MY_DETAILS = {
     "CSS3",
     "Tailwind CSS",
     "Next.js",
-    "Vue.js",
+    "Remix",
+    "Golang",
     "Git",
+    "React Router",
+    "MaterialUI",
     "Responsive Design",
-    "Performance Optimization",
     "RESTful APIs",
   ],
+
+  resumeUrl: "http://tinyurl.com/dev-vaibhav-resume",
 
   get mailTo() {
     return `mailto:${this.email}`;
@@ -60,18 +95,23 @@ export const MY_DETAILS = {
 
 export const SOCIAL_HANDLE_LIST = [
   {
-    content: <SiGithub size={28} />,
+    content: <SiGithub className="w-4 h-4 md:w-6 md:h-6" />,
     link: MY_DETAILS.social.github.link,
-    title: "Vaibahv's Github",
+    title: "Github",
   },
   {
-    content: <SiLinkerd size={28} />,
+    content: <LinkedinIcon className="w-4 h-4 md:w-6 md:h-6" />,
     link: MY_DETAILS.social.linkedIn.link,
-    title: "Vaibahv's Linkedin",
+    title: "Linkedin",
   },
   {
-    content: <Mail size={28} />,
+    content: <Mail className="w-4 h-4 md:w-6 md:h-6" />,
     link: MY_DETAILS.mailTo,
-    title: "Vaibahv's Email",
+    title: "Email",
+  },
+  {
+    content: <FileUser className="w-4 h-4 md:w-6 md:h-6" />,
+    link: MY_DETAILS.resumeUrl,
+    title: "Resume",
   },
 ];

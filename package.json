@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "cross-env NODE_ENV=production react-router build && mv ./build/client/gh-test-portfolio/* ./build/client && rm -r ./build/client/gh-test-portfolio",
+    "build": "cross-env NODE_ENV=production react-router build && mv ./build/client/portfolio/* ./build/client && rm -r ./build/client/portfolio",
     "dev": "react-router dev",
     "start": "cross-env NODE_ENV=production react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc"
@@ -13,11 +13,13 @@
     "@react-router/node": "^7.1.1",
     "@react-router/serve": "^7.1.1",
     "cross-env": "^7.0.3",
-    "framer-motion": "^11.17.0",
+    "front-matter": "^4.0.2",
     "isbot": "^5.1.17",
     "lucide-react": "^0.471.0",
+    "prism-react-renderer": "^2.4.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-markdown": "^9.0.3",
     "react-router": "^7.1.1"
   },
   "devDependencies": {
