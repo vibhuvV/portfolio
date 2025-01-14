@@ -1,7 +1,11 @@
 import { Outlet } from "react-router";
 
 const BlogLayout = () => {
-  return <Outlet />;
+  return (
+    <div className="space-y-4">
+      <Outlet />
+    </div>
+  );
 };
 
 export default BlogLayout;

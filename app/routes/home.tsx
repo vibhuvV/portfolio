@@ -1,34 +1,27 @@
 import type { Route } from "./+types/home";
-import { useEffect, useState } from "react";
+import { Link } from "react-router";
 import { BlogPost } from "~/components/BlogPost";
 import ExperienceItem from "~/components/ExperienceItem";
 import { SocialHandleList } from "~/components/SocialHandle";
 import { MY_DETAILS, SOCIAL_HANDLE_LIST } from "~/lib/constants";
+import { getBlogsMetadataList } from "~/lib/services.server";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "New React Router App" },
+    { title: `${MY_DETAILS.name} | ${MY_DETAILS.designation}` },
     { name: "description", content: "Welcome to React Router!" },
   ];
 }
 
-export default function Home() {
-  const [mounted, setMounted] = useState(false);
+export async function loader({}: Route.LoaderArgs) {
+  const blogs = await getBlogsMetadataList(3);
+  return { blogs };
+}
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) return null;
-
+export default function Home({ loaderData }: Route.ComponentProps) {
   return (
-    <div
-      // initial={{ opacity: 0, y: 20 }}
-      // animate={{ opacity: 1, y: 0 }}
-      // transition={{ duration: 0.5 }}
-      className="max-w-4xl mx-auto space-y-16"
-    >
-      <header className="flex justify-between align-top">
+    <div className="space-y-16 animate-load-in">
+      <header className="flex justify-between items-start">
         <div>
           <h1 className="text-5xl font-extrabold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-teal-400">
             {MY_DETAILS.name}
@@ -37,19 +30,14 @@ export default function Home() {
             {MY_DETAILS.designation}
           </h2>
         </div>
-        <SocialHandleList socialsList={SOCIAL_HANDLE_LIST} />
+        <div className="mt-5">
+          <SocialHandleList socialsList={SOCIAL_HANDLE_LIST} />
+        </div>
       </header>
 
       <section>
         <h3 className="text-3xl font-semibold mb-6 text-gray-500">About Me</h3>
-        <p className="text-gray-200 leading-relaxed">
-          I'm a passionate frontend developer with 4 years of experience
-          creating beautiful and functional web applications. I specialize in
-          modern JavaScript frameworks and have a keen eye for design and user
-          experience. My goal is to craft elegant, efficient, and user-centric
-          digital experiences that push the boundaries of what's possible on the
-          web.
-        </p>
+        <p className="text-gray-200 leading-relaxed">{MY_DETAILS.summary}</p>
       </section>
 
       <section>
@@ -57,8 +45,9 @@ export default function Home() {
           Experience
         </h3>
         <div className="space-y-8">
-          {MY_DETAILS.experience.map((exp) => (
+          {MY_DETAILS.experience.map((exp, index) => (
             <ExperienceItem
+              key={exp.title + index}
               title={exp.title}
               company={exp.company}
               period={exp.period}
@@ -87,32 +76,23 @@ export default function Home() {
           Latest Blog Posts
         </h3>
         <div className="space-y-8">
-          <BlogPost
-            title="The Future of Frontend Development"
-            date="May 15, 2023"
-            excerpt="Exploring upcoming trends and technologies that will shape the future of frontend development."
-            link="/blog/future-of-frontend"
-          />
-          <BlogPost
-            title="Optimizing React Performance"
-            date="April 2, 2023"
-            excerpt="Tips and tricks to boost the performance of your React applications for a smoother user experience."
-            link="/blog/optimizing-react-performance"
-          />
-          <BlogPost
-            title="CSS Grid vs Flexbox: When to Use Which?"
-            date="March 10, 2023"
-            excerpt="A comprehensive guide to help you choose between CSS Grid and Flexbox for your layout needs."
-            link="/blog/css-grid-vs-flexbox"
-          />
+          {loaderData.blogs.map((blog) => (
+            <BlogPost
+              key={blog.name}
+              title={blog.attributes.title}
+              date={blog.attributes.datetime}
+              excerpt={blog.attributes.description}
+              link={`/blogs/${blog.name}`}
+            />
+          ))}
         </div>
         <div className="mt-8">
-          <a
-            href="/blog"
-            className="text-blue-500 hover:text-blue-600 font-medium transition-colors duration-200"
+          <Link
+            to="/blogs"
+            className="text-blue-500 hover:text-blue-600 font-medium transition-colors duration-200 hover:underline"
           >
-            View all posts →
-          </a>
+            View all posts &rarr;
+          </Link>
         </div>
       </section>
     </div>
