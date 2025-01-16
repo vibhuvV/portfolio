@@ -36,22 +36,38 @@ jobs:
         uses: pnpm/action-setup@v4
         with:
           version: 10
+
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: "pnpm"
+
       - name: Install dependencies
         run: |
           pnpm install --frozen-lockfile
           pnpm run build
+
+      - name: Move static files for deplopyment
+        run: |
+          mv build/client/portfolio/* build/client
+
+      - name: Remove unwanted directories
+        run: |
+          rm -r build/client/portfolio && rm -r build/server
+
+      - name: Add 404 page
+        run: |
+          cp 404.html ./build/client/404.html
+
       - name: Setup Pages
         uses: actions/configure-pages@v4
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Upload entire repository
           path: "build/client"
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
