@@ -5,7 +5,7 @@ export default {
   // Config options...
   // Server-side render by default, to enable SPA mode set this to `false`
   ssr: true,
-  basename: "/portfolio",
+  basename: process.env.NODE_ENV === "production" ? "/portfolio" : "/",
   async prerender() {
     let blogs = await readPostsName();
     return ["", "/blogs", ...blogs.map((blog) => `/blogs/${blog}`)];
