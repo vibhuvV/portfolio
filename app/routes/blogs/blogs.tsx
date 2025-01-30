@@ -24,7 +24,7 @@ const Blog = ({ loaderData }: Route.ComponentProps) => {
   return (
     <>
       <a
-        to="/portfolio"
+        href="/portfolio"
         className="tracking-wider text-sm text-gray-500 hover:underline"
       >
         &larr; Home
