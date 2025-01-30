@@ -23,12 +23,12 @@ export async function loader({}: Route.LoaderArgs) {
 const Blog = ({ loaderData }: Route.ComponentProps) => {
   return (
     <>
-      <Link
-        to="/"
+      <a
+        to="/portfolio"
         className="tracking-wider text-sm text-gray-500 hover:underline"
       >
         &larr; Home
-      </Link>
+      </a>
       <h3 className="text-3xl font-semibold mb-6 text-gray-300">Blogs</h3>
       {loaderData.blogs.map((blog) => (
         <BlogPost
