@@ -18,7 +18,7 @@ export const MY_DETAILS = {
       description: [
         "Developed scalable dashboards and optimized pipelines, improving user engagement, retention, and operational efficiency.",
       ],
-      period: "January, 2024 - Present",
+      period: "January, 2024 - February, 2025",
     },
     {
       title: "Frontend Developer - II",
