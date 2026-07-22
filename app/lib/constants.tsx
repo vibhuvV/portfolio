@@ -3,11 +3,17 @@ import { SiGithub } from "@icons-pack/react-simple-icons";
 
 export const MY_DETAILS = {
   name: "Vaibhav Verma",
-  designation: "Frontend Engineer",
+  designation: "Senior Software Engineer",
   email: "dev.vaibhaverma@gmail.com",
-  summary: `Frontend Engineer with 5+ years of experience owning React and TypeScript-based products, building scalable UI systems, and optimizing performance for SaaS platforms used by thousands of users. Strong focus on component architecture, state management, accessibility (WCAG), and measurable performance improvements. Experienced in collaborating cross-functionally to deliver production-grade, user-centric features.`,
+  summary: `Frontend Engineer with 6+ years of experience owning React and TypeScript-based products, building scalable UI systems, and optimizing performance for SaaS platforms used by thousands of users. Strong focus on component architecture, state management, accessibility (WCAG), and measurable performance improvements. Experienced in collaborating cross-functionally to deliver production-grade, user-centric features.`,
 
   experience: [
+    {
+      title: "Senior Software Engineer",
+      company: "WPP",
+      description: [],
+      period: "June 2026 – Present | Gurugram, India",
+    },
     {
       title: "Senior Software Engineer",
       company: "Sourcefuse Technologies",
