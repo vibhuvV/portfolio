@@ -1,7 +1,7 @@
 ---
 title: Deploy SSG blog site on github
 description: Deploy React Router Framework (Formerly Remix) static blog site on Github pages using Github Actions and setup CI/CD so that new blogs will be deployed when any new markdown file is committed and pushed to Github.
-datetime: 14th Jan, 2025
+datetime: "2025-01-14"
 ---
 
 **Automate deployment of our static blog site that we created in [Build your SSG blogs using React Router Framework (Formerly Remix)](/blogs/build-ssg-blog). Add new blogs by adding new markdown files and pushing code to Github.**

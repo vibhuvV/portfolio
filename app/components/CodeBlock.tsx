@@ -4,55 +4,75 @@ import type { Language } from "prism-react-renderer";
 import { Highlight } from "prism-react-renderer";
 import { CopyClipboardButton } from "./CopyToClipboard";
 
+const LANGUAGE_ALIASES: Record<string, string> = {
+  sh: "bash",
+  shell: "bash",
+  zsh: "bash",
+  console: "bash",
+  js: "javascript",
+  ts: "typescript",
+  py: "python",
+  yml: "yaml",
+  md: "markdown",
+  html: "markup",
+  xml: "markup",
+  svg: "markup",
+  coffee: "coffeescript",
+  objc: "objectivec",
+  kt: "kotlin",
+  kts: "kotlin",
+};
+
+const SUPPORTED_LANGUAGES = new Set([
+  "markup",
+  "mathml",
+  "ssml",
+  "atom",
+  "rss",
+  "regex",
+  "clike",
+  "javascript",
+  "actionscript",
+  "coffeescript",
+  "css",
+  "yaml",
+  "markdown",
+  "graphql",
+  "sql",
+  "typescript",
+  "jsx",
+  "tsx",
+  "swift",
+  "kotlin",
+  "c",
+  "objectivec",
+  "reason",
+  "rust",
+  "go",
+  "cpp",
+  "python",
+  "json",
+  "webmanifest",
+  "plaintext",
+]);
+
 function getLanguageFromClassName(className: string) {
   const match = className.match(/language-(\w+)/);
   return match ? match[1] : "";
 }
 
-function isLanguageSupported(lang: string): lang is Language {
-  return (
-    lang === "markup" ||
-    lang === "bash" ||
-    lang === "clike" ||
-    lang === "c" ||
-    lang === "cpp" ||
-    lang === "css" ||
-    lang === "javascript" ||
-    lang === "jsx" ||
-    lang === "coffeescript" ||
-    lang === "actionscript" ||
-    lang === "css-extr" ||
-    lang === "diff" ||
-    lang === "git" ||
-    lang === "go" ||
-    lang === "graphql" ||
-    lang === "handlebars" ||
-    lang === "json" ||
-    lang === "less" ||
-    lang === "makefile" ||
-    lang === "markdown" ||
-    lang === "objectivec" ||
-    lang === "ocaml" ||
-    lang === "python" ||
-    lang === "reason" ||
-    lang === "sass" ||
-    lang === "scss" ||
-    lang === "sql" ||
-    lang === "stylus" ||
-    lang === "tsx" ||
-    lang === "typescript" ||
-    lang === "wasm" ||
-    lang === "yaml" ||
-    lang === "plaintext"
-  );
+function resolveLanguage(lang: string): Language {
+  const base = LANGUAGE_ALIASES[lang] ?? lang;
+  return SUPPORTED_LANGUAGES.has(base) ? base : "plaintext";
 }
 
 export const CodeBlock: FC<HTMLAttributes<HTMLPreElement>> = ({ children }) => {
+  const id = useId();
+
   if (!children) {
-    throw Error("CodeBlock: children is required");
+    return null;
   }
 
-  const id = useId();
   const childrenArray = Children.toArray(children);
   const codeElement = childrenArray[0] as ReactElement<
     HTMLAttributes<HTMLPreElement>,
@@ -60,26 +80,25 @@ export const CodeBlock: FC<HTMLAttributes<HTMLPreElement>> = ({ children }) => {
   >;
   const className = codeElement?.props?.className || "";
   const code = (codeElement.props.children as string) || "";
-  const lang = getLanguageFromClassName(className);
-
-  if (!isLanguageSupported(lang)) {
-    throw Error(`CodeBlock: language ${lang} is not supported`);
-  }
+  const rawLang = getLanguageFromClassName(className);
+  const language = resolveLanguage(rawLang);
 
   return (
-    <Highlight code={code.trim()} language={lang || "bash"}>
+    <Highlight code={code.trim()} language={language}>
       {({ className, tokens, getLineProps, getTokenProps }) => (
-        <div className="p-2 my-4 lg:p-4 rounded-md font-normal text-sm md:text-base w-full bg-[#282a36]">
-          <div className="flex justify-end gap-2">
-            <span className="text-sm">{lang || "text"}</span>
+        <div className="my-6 w-full rounded-lg border border-line bg-[#282a36] p-4">
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <span className="font-mono text-xs uppercase tracking-wider text-faint">
+              {rawLang || "text"}
+            </span>
             <CopyClipboardButton title="Copy code" content={code} id={id} />
           </div>
-          <pre className={`overflow-scroll ${className}`}>
+          <pre className={`overflow-x-auto text-sm md:text-base ${className}`}>
             <code className={className}>
               {tokens.map((line, i) => (
-                <div key={i} {...getLineProps({ line, key: i })} style={{}}>
+                <div key={i} {...getLineProps({ line, key: i })}>
                   {line.map((token, key) => (
-                    <span key={key} {...getTokenProps({ token })} style={{}} />
+                    <span key={key} {...getTokenProps({ token })} />
                   ))}
                 </div>
               ))}

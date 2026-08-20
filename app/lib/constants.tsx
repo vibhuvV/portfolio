@@ -1,17 +1,40 @@
 import { Mail, LinkedinIcon, FileUser } from "lucide-react";
 import { SiGithub } from "@icons-pack/react-simple-icons";
 
+export const SITE_URL = "https://vibhuvv.github.io/portfolio";
+
+export interface Project {
+  title: string;
+  description: string;
+  tech: string[];
+  link?: string;
+  github?: string;
+}
+
 export const MY_DETAILS = {
   name: "Vaibhav Verma",
   designation: "Senior Software Engineer",
   email: "dev.vaibhaverma@gmail.com",
+
+  /** One-liner shown under the name in the hero. Keep it short — it's the first thing recruiters read. */
+  tagline:
+    "I build fast, accessible interfaces for SaaS platforms — currently crafting agentic AI workflows on WPP Open Canvas.",
+
+  /** Shown as a status pill above the hero name. Set to empty string ("" ) to hide it. */
+  availability: "Open to new opportunities",
+
   summary: `Frontend Engineer with 6+ years of experience owning React and TypeScript-based products, building scalable UI systems, and optimizing performance for SaaS platforms used by thousands of users. Strong focus on component architecture, state management, accessibility (WCAG), and measurable performance improvements. Experienced in collaborating cross-functionally to deliver production-grade, user-centric features.`,
 
   experience: [
     {
       title: "Senior Software Engineer",
       company: "WPP",
-      description: [],
+      description: [
+        "Engineering WPP Open Canvas — a visual workspace where businesses build agentic AI workflows, create rapid prototypes, and assemble marketing pitches complete with generated assets.",
+        "Building the node-based canvas and interaction layer (drag-and-drop editing, pan/zoom, connection routing) in React and TypeScript for composing multi-step agent workflows.",
+        "Designing the workflow state model and node architecture so new agent capabilities can be added without touching the canvas core.",
+        "Partnering with product and design to translate agentic AI concepts into an approachable experience for non-technical marketing teams.",
+      ],
       period: "June 2026 – Present | Gurugram, India",
     },
     {
@@ -23,7 +46,7 @@ export const MY_DETAILS = {
         "Optimized frontend performance (code splitting, lazy loading, memoization), reducing initial page load time from 2.4s to 0.8s.",
         "Implemented real-time collaboration features and AI-powered email automation using LangChain.",
       ],
-      period: "Feb 2025 – Present | Remote",
+      period: "Feb 2025 – June 2026 | Remote",
     },
     {
       title: "Software Developer - II",
@@ -66,40 +89,86 @@ export const MY_DETAILS = {
     },
   ],
 
+  /**
+   * Skills grouped by category for the home page. Each group renders as a
+   * labelled row of chips. Add/remove groups and items freely — the section
+   * adapts to whatever is here.
+   */
   skills: [
-    "React.js",
-    "TypeScript",
-    "Next.js",
-    "JavaScript (ES6+)",
-    "HTML",
-    "CSS",
-    "SCSS",
-    "Tailwind CSS",
-    "Material UI",
-    "Ant Design",
-    "Redux Toolkit",
-    "TanStack Query",
-    "GraphQL",
-    "REST APIs",
-    "DND Kit",
-    "Recharts",
-    "Node.js",
-    "Express.js",
-    "AWS (Amplify, Cognito, S3, Lambda)",
-    "Google Cloud Platform",
-    "WCAG 2.1 AA Accessibility",
-    "Internationalization (i18n & RTL)",
-    "Vite",
-    "Webpack",
-    "Docker",
-    "Jest",
-    "Storybook",
-    "Git",
-    "GitHub Actions",
-    "CI/CD",
+    {
+      category: "Languages & Core",
+      items: [
+        "TypeScript",
+        "JavaScript (ES6+)",
+        "HTML",
+        "CSS",
+        "SCSS",
+        "Node.js",
+        "Express.js",
+      ],
+    },
+    {
+      category: "Frameworks & UI",
+      items: [
+        "React.js",
+        "Next.js",
+        "Tailwind CSS",
+        "Material UI",
+        "Ant Design",
+        "Storybook",
+      ],
+    },
+    {
+      category: "State & Data",
+      items: [
+        "Redux Toolkit",
+        "TanStack Query",
+        "GraphQL",
+        "REST APIs",
+        "DND Kit",
+        "Recharts",
+      ],
+    },
+    {
+      category: "Platform & Tooling",
+      items: [
+        "AWS (Amplify, Cognito, S3, Lambda)",
+        "Google Cloud Platform",
+        "Vite",
+        "Webpack",
+        "Docker",
+        "Jest",
+        "Git",
+        "GitHub Actions",
+        "CI/CD",
+      ],
+    },
+    {
+      category: "Practices",
+      items: [
+        "WCAG 2.1 AA Accessibility",
+        "Internationalization (i18n & RTL)",
+      ],
+    },
   ],
 
-  resumeUrl: "http://tinyurl.com/dev-vaibhav-resume",
+  /**
+   * Featured projects shown on the home page.
+   * The Projects section is hidden while this array is empty.
+   *
+   * To add a project, append an object with this shape:
+   *
+   * {
+   *   title: "Project Name",                 // required — displayed as the card heading
+   *   description: "What it does and your role in it.",  // required — 1-2 lines
+   *   tech: ["React", "TypeScript"],         // required — rendered as small chips
+   *   link: "https://live-demo.example.com", // optional — live/demo URL
+   *   github: "https://github.com/you/repo", // optional — source repo
+   * }
+   */
+  projects: [] as Project[],
+
+  resumeUrl: "https://tinyurl.com/dev-vaibhav-resume",
 
   get mailTo() {
     return `mailto:${this.email}`;
@@ -113,7 +182,7 @@ export const MY_DETAILS = {
       },
     },
     linkedIn: {
-      username: "vaibhaw-v",
+      username: "vaibha-verma",
       get link() {
         return `https://www.linkedin.com/in/${this.username}`;
       },
@@ -123,22 +192,22 @@ export const MY_DETAILS = {
 
 export const SOCIAL_HANDLE_LIST = [
   {
-    content: <SiGithub className="w-4 h-4 md:w-6 md:h-6" />,
+    content: <SiGithub className="h-5 w-5" />,
     link: MY_DETAILS.social.github.link,
-    title: "Github",
+    title: "GitHub",
   },
   {
-    content: <LinkedinIcon className="w-4 h-4 md:w-6 md:h-6" />,
+    content: <LinkedinIcon className="h-5 w-5" />,
     link: MY_DETAILS.social.linkedIn.link,
-    title: "Linkedin",
+    title: "LinkedIn",
   },
   {
-    content: <Mail className="w-4 h-4 md:w-6 md:h-6" />,
+    content: <Mail className="h-5 w-5" />,
     link: MY_DETAILS.mailTo,
     title: "Email",
   },
   {
-    content: <FileUser className="w-4 h-4 md:w-6 md:h-6" />,
+    content: <FileUser className="h-5 w-5" />,
     link: MY_DETAILS.resumeUrl,
     title: "Resume",
   },

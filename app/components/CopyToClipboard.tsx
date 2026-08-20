@@ -27,20 +27,19 @@ export function CopyClipboardButton({
   }, [content]);
 
   return (
-    <div className={className}>
-      <button
-        {...props}
-        className="hover:text-gray-500"
-        onClick={handleClick}
-        title={title}
-        id={id}
-      >
-        {isCopied ? (
-          <ClipboardCheck className="w-5 h-5 text-green-600" />
-        ) : (
-          <Clipboard className="w-5 h-5" />
-        )}
-      </button>
-    </div>
+    <button
+      {...props}
+      className={className}
+      onClick={handleClick}
+      title={title}
+      aria-label={title}
+      id={id}
+    >
+      {isCopied ? (
+        <ClipboardCheck className="h-5 w-5 text-green-500" />
+      ) : (
+        <Clipboard className="h-5 w-5 text-faint transition-colors duration-200 hover:text-body" />
+      )}
+    </button>
   );
 }

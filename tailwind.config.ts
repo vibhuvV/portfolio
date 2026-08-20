@@ -1,9 +1,21 @@
 import type { Config } from "tailwindcss";
 
 export default {
-  content: ["./app/**/{**,.client,.server}/**/*.{js,jsx,ts,tsx}"],
+  content: ["./app/**/*.{js,jsx,ts,tsx}"],
+  darkMode: "class",
   theme: {
     extend: {
+      colors: {
+        base: "rgb(var(--base) / <alpha-value>)",
+        surface: "rgb(var(--surface) / <alpha-value>)",
+        line: "rgb(var(--line) / <alpha-value>)",
+        ink: "rgb(var(--ink) / <alpha-value>)",
+        body: "rgb(var(--body) / <alpha-value>)",
+        muted: "rgb(var(--muted) / <alpha-value>)",
+        faint: "rgb(var(--faint) / <alpha-value>)",
+        accent: "rgb(var(--accent) / <alpha-value>)",
+        "accent-hover": "rgb(var(--accent-hover) / <alpha-value>)",
+      },
       fontFamily: {
         sans: [
           '"Inter"',
@@ -14,6 +26,13 @@ export default {
           '"Segoe UI Emoji"',
           '"Segoe UI Symbol"',
           '"Noto Color Emoji"',
+        ],
+        mono: [
+          '"JetBrains Mono"',
+          "ui-monospace",
+          "SFMono-Regular",
+          "Menlo",
+          "monospace",
         ],
       },
       keyframes: {

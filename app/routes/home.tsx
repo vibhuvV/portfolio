@@ -1,49 +1,22 @@
 import type { Route } from "./+types/home";
 import { Link } from "react-router";
+import { ArrowRight } from "lucide-react";
 import { BlogPost } from "~/components/BlogPost";
 import ExperienceItem from "~/components/ExperienceItem";
 import { SocialHandleList } from "~/components/SocialHandle";
+import { SectionHeading } from "~/components/SectionHeading";
+import { ProjectCard } from "~/components/ProjectCard";
 import { MY_DETAILS, SOCIAL_HANDLE_LIST } from "~/lib/constants";
+import { buildMeta, personJsonLd } from "~/lib/seo";
 import { getBlogsMetadataList } from "~/lib/services.server";
 
 export function meta({}: Route.MetaArgs) {
-  return [
-    { title: `${MY_DETAILS.name} | ${MY_DETAILS.designation}` },
-    {
-      name: "description",
-      content:
-        "Explore the portfolio of Vaibhav Verma, a skilled frontend developer specializing in React, TypeScript, SCSS, and Python. Check out projects, blogs, and more.",
-    },
-    {
-      name: "keywords",
-      content:
-        "Vaibhav Verma, Frontend Developer, React Developer, TypeScript Developer, SCSS, Python, Web Development Portfolio, Web Developer Resume",
-    },
-    { name: "author", content: "Vaibhav Verma" },
-    { name: "robots", content: "index, follow" },
-    {
-      property: "og:title",
-      content: "Vaibhav Verma - Frontend Developer Portfolio",
-    },
-    {
-      property: "og:description",
-      content:
-        "Discover Vaibhav Verma's expertise in building high-performance web applications using modern technologies like React, TypeScript, and SCSS.",
-    },
-    // { property: "og:image", content: "path/to/your-portfolio-image.jpg" },
-    // { property: "og:url", content: "https://your-portfolio-domain.com" },
-    { property: "og:type", content: "website" },
-    // { name: "twitter:card", content: "summary_large_image" },
-    {
-      name: "twitter:title",
-      content: "Vaibhav Verma - Frontend Developer Portfolio",
-    },
-    {
-      name: "twitter:description",
-      content:
-        "Explore the projects and blogs by Vaibhav Verma, a frontend developer passionate about solving complex problems.",
-    },
-  ];
+  return buildMeta({
+    title: `${MY_DETAILS.name} | ${MY_DETAILS.designation}`,
+    description:
+      "Portfolio of Vaibhav Verma, a senior software engineer specializing in React, TypeScript, and scalable UI systems for SaaS platforms.",
+    path: "",
+  });
 }
 
 export async function loader({}: Route.LoaderArgs) {
@@ -53,31 +26,55 @@ export async function loader({}: Route.LoaderArgs) {
 
 export default function Home({ loaderData }: Route.ComponentProps) {
   return (
-    <div className="space-y-16 animate-load-in">
-      <header className="flex justify-between items-start">
-        <div>
-          <h1 className="text-5xl font-extrabold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-teal-400">
-            {MY_DETAILS.name}
-          </h1>
-          <h2 className="text-2xl text-gray-200 font-light">
-            {MY_DETAILS.designation}
-          </h2>
-        </div>
-        <div className="mt-5">
-          <SocialHandleList socialsList={SOCIAL_HANDLE_LIST} />
-        </div>
+    <div className="space-y-24">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
+      />
+
+      <header className="pt-4 sm:pt-8">
+        {MY_DETAILS.availability && (
+          <span className="inline-flex items-center gap-2 rounded-full border border-line bg-surface px-3 py-1 font-mono text-xs text-muted">
+            <span aria-hidden="true" className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-60" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+            </span>
+            {MY_DETAILS.availability}
+          </span>
+        )}
+        <p className="mt-6 font-mono text-xs uppercase tracking-[0.3em] text-accent">
+          {MY_DETAILS.designation}
+        </p>
+        <h1 className="mt-4 bg-gradient-to-r from-ink via-body to-muted bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-6xl">
+          {MY_DETAILS.name}
+        </h1>
+        <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted">
+          {MY_DETAILS.tagline}
+        </p>
+        <SocialHandleList socialsList={SOCIAL_HANDLE_LIST} className="mt-8" />
       </header>
 
       <section>
-        <h3 className="text-3xl font-semibold mb-6 text-gray-500">About Me</h3>
-        <p className="text-gray-200 leading-relaxed">{MY_DETAILS.summary}</p>
+        <SectionHeading>About</SectionHeading>
+        <p className="max-w-2xl leading-relaxed text-body">
+          {MY_DETAILS.summary}
+        </p>
       </section>
 
+      {MY_DETAILS.projects.length > 0 && (
+        <section>
+          <SectionHeading>Projects</SectionHeading>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {MY_DETAILS.projects.map((project) => (
+              <ProjectCard key={project.title} project={project} />
+            ))}
+          </div>
+        </section>
+      )}
+
       <section>
-        <h3 className="text-3xl font-semibold mb-6 text-gray-500">
-          Experience
-        </h3>
-        <div className="space-y-8">
+        <SectionHeading>Experience</SectionHeading>
+        <ol className="relative ml-1 space-y-12 border-l border-line">
           {MY_DETAILS.experience.map((exp, index) => (
             <ExperienceItem
               key={exp.title + index}
@@ -87,28 +84,35 @@ export default function Home({ loaderData }: Route.ComponentProps) {
               description={exp.description}
             />
           ))}
-        </div>
+        </ol>
       </section>
 
       <section>
-        <h3 className="text-3xl font-semibold mb-6 text-gray-500">Skills</h3>
-        <div className="flex flex-wrap gap-3">
-          {MY_DETAILS.skills.map((skill) => (
-            <span
-              key={skill}
-              className="bg-blue-950 text-gray-300 px-4 py-2 rounded-full text-sm hover:shadow-gray-800 cursor-default shadow-md transition-shadow duration-200"
-            >
-              {skill}
-            </span>
+        <SectionHeading>Skills</SectionHeading>
+        <div className="grid gap-8 sm:grid-cols-2">
+          {MY_DETAILS.skills.map((group) => (
+            <div key={group.category}>
+              <p className="mb-3 font-mono text-xs uppercase tracking-widest text-faint">
+                {group.category}
+              </p>
+              <ul className="flex flex-wrap gap-2">
+                {group.items.map((skill) => (
+                  <li
+                    key={skill}
+                    className="cursor-default rounded-full border border-line bg-surface px-3 py-1 text-xs text-muted transition-colors duration-200 hover:border-faint hover:text-body"
+                  >
+                    {skill}
+                  </li>
+                ))}
+              </ul>
+            </div>
           ))}
         </div>
       </section>
 
       <section>
-        <h3 className="text-3xl font-semibold mb-6 text-gray-500">
-          Latest Blog Posts
-        </h3>
-        <div className="space-y-8">
+        <SectionHeading>Latest Posts</SectionHeading>
+        <div className="space-y-4">
           {loaderData.blogs.map((blog) => (
             <BlogPost
               key={blog.name}
@@ -119,14 +123,12 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             />
           ))}
         </div>
-        <div className="mt-8">
-          <Link
-            to="/blogs"
-            className="text-blue-500 hover:text-blue-600 font-medium transition-colors duration-200 hover:underline"
-          >
-            View all posts &rarr;
-          </Link>
-        </div>
+        <Link
+          to="/blogs"
+          className="mt-6 inline-flex items-center gap-1 text-sm font-medium text-accent transition-colors duration-200 hover:text-accent-hover"
+        >
+          View all posts <ArrowRight aria-hidden="true" className="h-4 w-4" />
+        </Link>
       </section>
     </div>
   );

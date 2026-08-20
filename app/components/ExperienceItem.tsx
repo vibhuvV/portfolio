@@ -11,16 +11,32 @@ export default function ExperienceItem({
   period,
   description,
 }: ExperienceItemProps) {
+  const [dates, location] = period.split("|").map((part) => part.trim());
+
   return (
-    <div className="border-l-2 border-blue-200 pl-6 py-2 animate-fade-up">
-      <h4 className="text-xl font-semibold text-gray-200">{title}</h4>
-      <p className="text-gray-400 font-medium">{company}</p>
-      <p className="text-sm text-gray-500 mb-2">{period}</p>
-      {description.map((item) => (
-        <p className="text-gray-300" key={item}>
-          {item}
+    <li className="relative pl-8">
+      <span
+        aria-hidden="true"
+        className="absolute -left-[5px] top-[0.45rem] h-[11px] w-[11px] rounded-full border-2 border-base bg-accent"
+      />
+      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+        <h4 className="text-base font-semibold text-ink sm:text-lg">
+          {title} <span className="font-normal text-muted">· {company}</span>
+        </h4>
+        <p className="font-mono text-xs tracking-wide text-faint">{dates}</p>
+      </div>
+      {location && (
+        <p className="mt-0.5 font-mono text-xs tracking-wide text-faint">
+          {location}
         </p>
-      ))}
-    </div>
+      )}
+      {description.length > 0 && (
+        <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-muted marker:text-faint">
+          {description.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+      )}
+    </li>
   );
 }

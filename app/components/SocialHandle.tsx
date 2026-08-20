@@ -1,7 +1,6 @@
 import type { AnchorHTMLAttributes, DetailedHTMLProps } from "react";
 import { cn } from "~/lib/utils";
 
-// Social Handle List
 interface SocialHandle {
   readonly link: string;
   readonly title: string;
@@ -10,27 +9,28 @@ interface SocialHandle {
 
 interface SocialHandleListProps {
   readonly socialsList: SocialHandle[];
+  readonly className?: string;
 }
 
-export const SocialHandleList = (props: SocialHandleListProps) => {
-  const { socialsList } = props;
-
-  return (
-    <div className="flex justify-center space-x-6">
-      {socialsList.map((social) => (
-        <SocialHandleLink
-          key={social.title}
-          href={social.link}
-          target="_blank"
-          rel="noopener noreferrer"
-          title={social.title}
-        >
-          {social.content}
-        </SocialHandleLink>
-      ))}
-    </div>
-  );
-};
+export const SocialHandleList = ({
+  socialsList,
+  className,
+}: SocialHandleListProps) => (
+  <div className={cn("flex items-center gap-5", className)}>
+    {socialsList.map((social) => (
+      <SocialHandleLink
+        key={social.title}
+        href={social.link}
+        target="_blank"
+        rel="noopener noreferrer"
+        title={social.title}
+        aria-label={social.title}
+      >
+        {social.content}
+      </SocialHandleLink>
+    ))}
+  </div>
+);
 
 interface SocialHandleLinkProps
   extends DetailedHTMLProps<
@@ -38,14 +38,12 @@ interface SocialHandleLinkProps
     HTMLAnchorElement
   > {}
 
-const SocialHandleLink = ({ className, ...props }: SocialHandleLinkProps) => {
-  return (
-    <a
-      {...props}
-      className={cn(
-        "text-gray-200 hover:text-gray-500 transition-colors duration-200",
-        className
-      )}
-    />
-  );
-};
+const SocialHandleLink = ({ className, ...props }: SocialHandleLinkProps) => (
+  <a
+    {...props}
+    className={cn(
+      "text-muted transition-colors duration-200 hover:text-accent",
+      className
+    )}
+  />
+);

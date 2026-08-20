@@ -1,4 +1,6 @@
 import { Link } from "react-router";
+import { ArrowUpRight } from "lucide-react";
+import { formatDate } from "~/lib/utils";
 
 interface BlogPostProps {
   title: string;
@@ -9,17 +11,19 @@ interface BlogPostProps {
 
 export function BlogPost({ title, date, excerpt, link }: BlogPostProps) {
   return (
-    <article className="bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 p-6 animate-load-in">
-      <h4 className="text-xl font-semibold mb-2">
+    <article className="group rounded-xl border border-line bg-surface p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-faint sm:p-6">
+      <h3 className="text-lg font-semibold">
         <Link
           to={link}
-          className="text-blue-500 hover:text-blue-600 transition-colors duration-200"
+          className="text-ink transition-colors duration-200 group-hover:text-accent"
         >
           {title}
         </Link>
-      </h4>
-      <p className="text-sm text-gray-500 mb-3">{date}</p>
-      <p className="text-gray-400">{excerpt}</p>
+      </h3>
+      <p className="mt-1 font-mono text-xs tracking-wide text-faint">
+        {formatDate(date)}
+      </p>
+      <p className="mt-3 text-sm leading-relaxed text-muted">{excerpt}</p>
     </article>
   );
 }

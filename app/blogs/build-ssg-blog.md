@@ -1,7 +1,7 @@
 ---
 title: Build your SSG blogs using React Router Framework (Formerly Remix)
 description: Create your static blog site in React Router Framework (Formerly Remix). Add new blogs by directly writing blogs in Markdown.
-datetime: 14th Jan, 2025
+datetime: "2025-01-14"
 ---
 
 **Create your static blog site in React Router framework. Add new blogs by directly writing blogs in Markdown.**

@@ -4,7 +4,7 @@ import {
   readPostsName,
 } from "~/lib/utils.server";
 
-export const getBlogsMetadataList = async (limit = 3) => {
+export const getBlogsMetadataList = async (limit?: number) => {
   const blogFileNames = await readPostsName(limit);
 
   const fileContents = await Promise.all(
@@ -14,8 +14,14 @@ export const getBlogsMetadataList = async (limit = 3) => {
     fileContents.map((fileContent) => getBlogMetadataAndBody(fileContent))
   );
 
-  return metadataAndBody.map((data, idx) => ({
-    name: blogFileNames[idx],
-    attributes: data.attributes,
-  }));
+  return metadataAndBody
+    .map((data, idx) => ({
+      name: blogFileNames[idx],
+      attributes: data.attributes,
+    }))
+    .sort(
+      (a, b) =>
+        new Date(b.attributes.datetime).getTime() -
+        new Date(a.attributes.datetime).getTime()
+    );
 };

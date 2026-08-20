@@ -10,13 +10,13 @@ interface MarkdownParserProps {
 const MarkdownParser = ({ markdown }: MarkdownParserProps) => {
   return (
     <ReactMarkdown
-      className="text-gray-300 animate-load-in"
+      className="text-body"
       components={{
         h1({ node, children, className, ...props }) {
           return (
             <h1
               {...props}
-              className={cn("text-4xl font-semibold my-10", className)}
+              className={cn("mt-10 mb-4 text-3xl font-bold text-ink", className)}
             >
               {children}
             </h1>
@@ -26,7 +26,10 @@ const MarkdownParser = ({ markdown }: MarkdownParserProps) => {
           return (
             <h2
               {...props}
-              className={cn("text-3xl font-semibold my-8", className)}
+              className={cn(
+                "mt-10 mb-4 text-2xl font-semibold text-ink",
+                className
+              )}
             >
               {children}
             </h2>
@@ -36,7 +39,7 @@ const MarkdownParser = ({ markdown }: MarkdownParserProps) => {
           return (
             <h3
               {...props}
-              className={cn("text-2xl font-semibold my-6", className)}
+              className={cn("mt-8 mb-3 text-xl font-semibold text-ink", className)}
             >
               {children}
             </h3>
@@ -46,7 +49,7 @@ const MarkdownParser = ({ markdown }: MarkdownParserProps) => {
           return (
             <h4
               {...props}
-              className={cn("text-xl font-semibold my-4", className)}
+              className={cn("mt-6 mb-2 text-lg font-semibold text-ink", className)}
             >
               {children}
             </h4>
@@ -56,7 +59,7 @@ const MarkdownParser = ({ markdown }: MarkdownParserProps) => {
           return (
             <h5
               {...props}
-              className={cn("text-lg font-semibold my-2", className)}
+              className={cn("mt-4 text-base font-semibold text-ink", className)}
             >
               {children}
             </h5>
@@ -66,7 +69,7 @@ const MarkdownParser = ({ markdown }: MarkdownParserProps) => {
           return (
             <h6
               {...props}
-              className={cn("text-md font-semibold my-1", className)}
+              className={cn("mt-4 text-sm font-semibold text-ink", className)}
             >
               {children}
             </h6>
@@ -74,7 +77,7 @@ const MarkdownParser = ({ markdown }: MarkdownParserProps) => {
         },
         p({ node, children, className, ...props }) {
           return (
-            <p {...props} className={cn("text-base my-3", className)}>
+            <p {...props} className={cn("my-4 leading-relaxed", className)}>
               {children}
             </p>
           );
@@ -86,7 +89,10 @@ const MarkdownParser = ({ markdown }: MarkdownParserProps) => {
           return (
             <ul
               {...props}
-              className={cn("list-disc list-inside ml-4", className)}
+              className={cn(
+                "my-4 list-disc space-y-1.5 pl-6 marker:text-faint",
+                className
+              )}
             >
               {children}
             </ul>
@@ -94,23 +100,26 @@ const MarkdownParser = ({ markdown }: MarkdownParserProps) => {
         },
         ol({ node, children, className, ...props }) {
           return (
-            <ul
+            <ol
               {...props}
-              className={cn("list-decimal list-inside ml-4", className)}
+              className={cn(
+                "my-4 list-decimal space-y-1.5 pl-6 marker:text-faint",
+                className
+              )}
             >
               {children}
-            </ul>
+            </ol>
           );
         },
         li({ node, children, className, key, ...props }) {
           return (
-            <li {...props} key={key} className={cn("leading-8", className)}>
+            <li {...props} key={key} className={cn("leading-relaxed", className)}>
               {children}
             </li>
           );
         },
         hr({ node, className, ...props }) {
-          return <hr {...props} className={cn("my-8", className)} />;
+          return <hr {...props} className={cn("my-10 border-line", className)} />;
         },
         a({ node, className, ...props }) {
           return (
@@ -118,7 +127,7 @@ const MarkdownParser = ({ markdown }: MarkdownParserProps) => {
               {...props}
               target="_blank"
               className={cn(
-                "text-base my-3 text-blue-500 hover:text-blue-600 font-medium transition-colors duration-200 hover:underline",
+                "font-medium text-accent underline-offset-4 transition-colors duration-200 hover:text-accent-hover hover:underline",
                 className
               )}
             />
@@ -129,7 +138,7 @@ const MarkdownParser = ({ markdown }: MarkdownParserProps) => {
             <code
               {...props}
               className={cn(
-                "text-base my-3 bg-[#282a36] p-1 rounded",
+                "rounded border border-line bg-surface px-1.5 py-0.5 text-[0.9em]",
                 className
               )}
             />
