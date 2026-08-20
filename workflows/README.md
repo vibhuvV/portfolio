@@ -10,8 +10,27 @@ existing posts in `app/blogs/`, drafts a new post via z.ai (GLM) in the blog's
 voice, validates the front-matter, and commits it to this repo — which
 triggers the GitHub Pages deploy automatically.
 
-**Pipeline:** When clicked (manual) → Get trending topics → List existing
-blogs → Pick topic → Draft blog → Validate & slug → Commit to GitHub
+**Pipeline:** When clicked (manual) → Get trending topics → skill filter →
+List existing blogs → Pick topic → Draft blog → Validate & slug →
+Commit to GitHub
+
+### Topic scoping
+
+Only topics matching the author's skill profile become posts. `Pick topic`
+filters HN titles against a frontend-engineering pattern (React,
+TypeScript/JavaScript, CSS/HTML, Node tooling, performance, accessibility,
+browser/platform APIs, design systems…). If nothing on the front page
+matches, the run **fails on purpose** with "No trending topics matching the
+skill profile" — that's the guardrail, not a bug; just execute again later.
+
+### Originality guardrails
+
+The prompt forbids copying, close paraphrasing, or following any source
+article's structure/examples, and the source URL is never passed to the
+model — it writes from its own knowledge of the topic. Posts are also
+deduplicated against existing blog topics by keyword overlap. Treat every
+draft as unreviewed until you've read it (commit messages are flagged
+`auto-generated`).
 
 ### Setup
 

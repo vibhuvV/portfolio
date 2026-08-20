@@ -3,7 +3,7 @@
   "nodes": [
     {
       "parameters": {
-        "content": "## Portfolio auto-blog\n\n**Pipeline:** manual trigger (Execute workflow) -> fetch Hacker News front page -> dedup vs existing posts -> LLM drafts a post in the blog's voice -> validate front-matter + build slug -> commit to `app/blogs/`.\n\n**Credentials needed (select on the nodes):**\n1. `List existing blogs` + `Commit to GitHub` — GitHub credential (PAT with repo contents write access). See workflows/README.md for setup steps.\n2. `Draft blog` — Header Auth credential: Name `Authorization`, Value `Bearer <your z.ai Coding Plan key>`. Uses z.ai's OpenAI-compatible **Coding Plan** endpoint (`api.z.ai/api/coding/paas/v4`), model `glm-4.6`. If your key is a standard API key instead, change the URL to `api.z.ai/api/paas/v4`.\n\n**Notes:**\n- Runs on click (Manual trigger) — no schedule. Use the **Execute workflow** button.\n- Change the `model` field in `Draft blog`'s JSON body to use a different GLM model.\n- Swap the topic source by replacing `Get trending topics` with any HTTP node (dev.to API, Reddit, etc.).\n- The site redeploys automatically via GitHub Actions on push to main; the sitemap is generated at build time, so new posts are picked up automatically.",
+        "content": "## Portfolio auto-blog\n\n**Pipeline:** manual trigger (Execute workflow) -> fetch Hacker News front page -> filter to the skill profile (frontend/web eng) -> dedup vs existing posts -> LLM drafts an ORIGINAL post -> validate front-matter + build slug -> commit to `app/blogs/`.\n\n**Credentials needed (select on the nodes):**\n1. `List existing blogs` + `Commit to GitHub` — GitHub credential (PAT with repo contents write access). See workflows/README.md for setup steps.\n2. `Draft blog` — Header Auth credential: Name `Authorization`, Value `Bearer <your z.ai Coding Plan key>`. Uses z.ai OpenAI-compatible **Coding Plan** endpoint (`api.z.ai/api/coding/paas/v4`), model `glm-4.6`. Standard API key instead? Change URL to `api.z.ai/api/paas/v4`.\n\n**Topic rules (enforced in `Pick topic`):**\n- Only topics matching the skill pattern (React/TS/JS/CSS/Node/performance/accessibility/browser APIs/etc.) pass — everything else is filtered out.\n- If nothing matches, the run FAILS ON PURPOSE (\"No trending topics matching the skill profile\") — the guardrail working, not a bug.\n\n**Originality (enforced in the prompt):** draft written from scratch; no copying/paraphrasing, no following a source article's structure or examples, and the source URL is deliberately NOT given to the model.\n\n**Notes:**\n- Runs on click (Manual trigger). Use **Execute workflow**.\n- Change the `model` field in `Draft blog`'s JSON body for a different GLM model.\n- Swap the topic source by replacing `Get trending topics` with any HTTP node (dev.to, Reddit) — keep the skill filter in `Pick topic`.\n- Site redeploys via GitHub Actions on push to main; sitemap is generated at build time.",
         "height": 380,
         "width": 460
       },
@@ -11,7 +11,10 @@
       "name": "Sticky Note - setup",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
-      "position": [-780, -260]
+      "position": [
+        -780,
+        -260
+      ]
     },
     {
       "parameters": {
@@ -23,7 +26,10 @@
       "name": "Sticky Note - safety",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
-      "position": [-300, -260]
+      "position": [
+        -300,
+        -260
+      ]
     },
     {
       "parameters": {},
@@ -31,7 +37,10 @@
       "name": "When clicked",
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
-      "position": [-780, 240]
+      "position": [
+        -780,
+        240
+      ]
     },
     {
       "parameters": {
@@ -55,7 +64,10 @@
       "name": "Get trending topics",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-560, 240]
+      "position": [
+        -560,
+        240
+      ]
     },
     {
       "parameters": {
@@ -77,19 +89,25 @@
       "name": "List existing blogs",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [-340, 240],
+      "position": [
+        -340,
+        240
+      ],
       "credentials": {}
     },
     {
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "const hits = ($('Get trending topics').first().json.hits || [])\n  .filter(h => (h.points || 0) >= 50 && String(h.title || '').trim().split(/\\s+/).length >= 4)\n  .sort((a, b) => b.points - a.points);\n\nif (!hits.length) {\n  throw new Error('No suitable trending topics found');\n}\n\nconst raw = $('List existing blogs').all().map(i => i.json);\nconst list = raw.length === 1 && Array.isArray(raw[0]) ? raw[0] : raw;\nconst existing = list.map(f => f.name || '').filter(Boolean).map(n => n.replace(/\\.md$/, ''));\n\nconst STOP = new Set(['the', 'and', 'for', 'with', 'new', 'how', 'why', 'what', 'you', 'your', 'are', 'can', 'will', 'that', 'this', 'from', 'into', 'using', 'best', 'guide', 'tips']);\n\nfunction keywords(slug) {\n  return slug.split('-').filter(w => w.length > 3 && !STOP.has(w));\n}\n\nconst existingWords = new Set(existing.flatMap(keywords));\n\nconst pick = hits.find(h => {\n  const slug = h.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60);\n  const overlap = keywords(slug).filter(w => existingWords.has(w)).length;\n  return overlap <= 1;\n}) || hits[0];\n\nconst today = new Date().toISOString().slice(0, 10);\n\nconst systemPrompt = [\n  'You write technical blog posts for the personal portfolio of a senior frontend engineer (React, TypeScript, CSS, performance, accessibility).',\n  'Voice: first-person, direct, practical, mildly opinionated. Short paragraphs. No hype, no buzzword filler, no \"in today\\'s fast-paced world\".',\n  'Structure: a bold one-line thesis right after front-matter, then \"##\" sections. Include 1-3 focused code blocks (ts/tsx/css/bash) that are correct and runnable.',\n  'Hard rules: never invent metrics, statistics, or personal anecdotes about employers. No named companies. 700-1100 words.',\n  'The post MUST start with YAML front-matter, exactly this shape (double-quoted values):',\n  '---',\n  'title: \"...\"',\n  'description: \"One or two sentences, under 200 characters.\"',\n  'datetime: \"YYYY-MM-DD\"',\n  '---',\n  'Output only the markdown. No preamble, no closing remarks.'\n].join('\\n');\n\nconst userPrompt = [\n  `Write today's post (${today}).`,\n  `Topic (from Hacker News discussion): \"${pick.title}\"`,\n  pick.url ? `Reference for context: ${pick.url}` : '',\n  existing.length ? `Existing posts on this blog (do not repeat their topics): ${existing.join(', ')}` : ''\n].filter(Boolean).join('\\n');\n\nreturn [{ json: { topic: pick.title, url: pick.url || '', today, systemPrompt, userPrompt } }];"
+        "jsCode": "// Topics must match at least one of these skill areas — anything else is filtered out.\nconst SKILL_PATTERN = /(react|typescript|javascript|ecmascript|node\\.?js|next\\.?js|tailwind|redux|graphql|vite|webpack|jest|storybook|accessibility|a11y|performance|frontend|front-end|browser|html|css|design system|component|web ?(dev|platform|app|performance|site|frameworks?)|ui (library|engineering)|css|open web|w3c|whatwg|pwa|service worker|devtools|bundle|rendering|dom )/i;\n\nconst hits = ($('Get trending topics').first().json.hits || [])\n  .filter(h => (h.points || 0) >= 50 && String(h.title || '').trim().split(/\\s+/).length >= 4)\n  .filter(h => SKILL_PATTERN.test(h.title || ''))\n  .sort((a, b) => b.points - a.points);\n\nif (!hits.length) {\n  throw new Error('No trending topics matching the skill profile (frontend/web engineering) — nothing to write this run.');\n}\n\nconst raw = $('List existing blogs').all().map(i => i.json);\nconst list = raw.length === 1 && Array.isArray(raw[0]) ? raw[0] : raw;\nconst existing = list.map(f => f.name || '').filter(Boolean).map(n => n.replace(/\\.md$/, ''));\n\nconst STOP = new Set(['the', 'and', 'for', 'with', 'new', 'how', 'why', 'what', 'you', 'your', 'are', 'can', 'will', 'that', 'this', 'from', 'into', 'using', 'best', 'guide', 'tips']);\n\nfunction keywords(slug) {\n  return slug.split('-').filter(w => w.length > 3 && !STOP.has(w));\n}\n\nconst existingWords = new Set(existing.flatMap(keywords));\n\nconst pick = hits.find(h => {\n  const slug = h.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60);\n  const overlap = keywords(slug).filter(w => existingWords.has(w)).length;\n  return overlap <= 1;\n}) || hits[0];\n\nconst today = new Date().toISOString().slice(0, 10);\n\nconst systemPrompt = [\n  'You write technical blog posts for the personal portfolio of a senior frontend engineer (React, TypeScript, CSS, performance, accessibility).',\n  'Voice: first-person, direct, practical, mildly opinionated. Short paragraphs. No hype, no buzzword filler, no \"in today\\'s fast-paced world\".',\n  'Structure: a bold one-line thesis right after front-matter, then \"##\" sections. Include 1-3 focused code blocks (ts/tsx/css/bash) that are correct and runnable.',\n  'Hard rules: never invent metrics, statistics, or personal anecdotes about employers. No named companies. 700-1100 words.',\n  'ORIGINALITY (strict): everything must be written from scratch, from your own knowledge of the topic. Do not copy, translate, or closely paraphrase any article, post, tutorial, documentation page, or discussion thread — including the discussion the topic came from. Do not quote or reproduce passages from sources. Do not follow any source article\\'s structure, section order, examples, or framing. If an idea is not yours, either explain it from first principles in your own words or state it as general knowledge without citing a source. The result must read as an original practitioner\\'s take, not a rewrite.',\n  'Stay strictly within the author\\'s skill profile: frontend engineering with React, TypeScript, JavaScript, CSS, Node.js tooling, web performance, accessibility, and browser/platform APIs. If a topic drifts outside that profile, narrow it to the frontend/web-engineering angle or refuse by writing only front-matter with an empty body.',\n  'The post MUST start with YAML front-matter, exactly this shape (double-quoted values):',\n  '---',\n  'title: \"...\"',\n  'description: \"One or two sentences, under 200 characters.\"',\n  'datetime: \"YYYY-MM-DD\"',\n  '---',\n  'Output only the markdown. No preamble, no closing remarks.'\n].join('\\n');\n\n// The source URL is deliberately NOT included — the draft must be an original\n// take on the topic, not a paraphrase of one specific article.\nconst userPrompt = [\n  `Write today's post (${today}).`,\n  `Topic: \"${pick.title}\"`,\n  existing.length ? `Existing posts on this blog (do not repeat their topics): ${existing.join(', ')}` : ''\n].filter(Boolean).join('\\n');\n\nreturn [{ json: { topic: pick.title, url: pick.url || '', today, systemPrompt, userPrompt } }];"
       },
       "id": "pick-topic",
       "name": "Pick topic",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-120, 240]
+      "position": [
+        -120,
+        240
+      ]
     },
     {
       "parameters": {
@@ -106,7 +124,10 @@
       "name": "Draft blog",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [100, 240]
+      "position": [
+        100,
+        240
+      ]
     },
     {
       "parameters": {
@@ -117,7 +138,10 @@
       "name": "Validate & slug",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [320, 240]
+      "position": [
+        320,
+        240
+      ]
     },
     {
       "parameters": {
@@ -143,7 +167,10 @@
       "name": "Commit to GitHub",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [540, 240]
+      "position": [
+        540,
+        240
+      ]
     }
   ],
   "connections": {
