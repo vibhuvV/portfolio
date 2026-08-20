@@ -1,0 +1,221 @@
+{
+  "name": "Portfolio Auto-Blog",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Portfolio auto-blog\n\n**Pipeline:** manual trigger (Execute workflow) -> fetch Hacker News front page -> dedup vs existing posts -> LLM drafts a post in the blog's voice -> validate front-matter + build slug -> commit to `app/blogs/`.\n\n**Credentials needed (select on the nodes):**\n1. `List existing blogs` + `Commit to GitHub` — GitHub credential (PAT with repo contents write access). See workflows/README.md for setup steps.\n2. `Draft blog` — Header Auth credential: Name `Authorization`, Value `Bearer <your z.ai Coding Plan key>`. Uses z.ai's OpenAI-compatible **Coding Plan** endpoint (`api.z.ai/api/coding/paas/v4`), model `glm-4.6`. If your key is a standard API key instead, change the URL to `api.z.ai/api/paas/v4`.\n\n**Notes:**\n- Runs on click (Manual trigger) — no schedule. Use the **Execute workflow** button.\n- Change the `model` field in `Draft blog`'s JSON body to use a different GLM model.\n- Swap the topic source by replacing `Get trending topics` with any HTTP node (dev.to API, Reddit, etc.).\n- The site redeploys automatically via GitHub Actions on push to main; the sitemap is generated at build time, so new posts are picked up automatically.",
+        "height": 380,
+        "width": 460
+      },
+      "id": "sticky-setup",
+      "name": "Sticky Note - setup",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-780, -260]
+    },
+    {
+      "parameters": {
+        "content": "## Recommended: review before it goes live\nCommitting straight to `main` deploys unreviewed AI content to a recruiter-facing portfolio instantly.\n\n**Safer alternative:** in `Commit to GitHub`, change `branch` from `main` to `auto-blog`, then open a PR from:\n`github.com/vibhuvV/portfolio/compare/main...auto-blog`\n\nEven better: insert a n8n **Send and Wait** node (email/Slack approval) between `Validate & slug` and `Commit to GitHub` so nothing lands without a human click.",
+        "height": 300,
+        "width": 460
+      },
+      "id": "sticky-safety",
+      "name": "Sticky Note - safety",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-300, -260]
+    },
+    {
+      "parameters": {},
+      "id": "trigger-manual",
+      "name": "When clicked",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [-780, 240]
+    },
+    {
+      "parameters": {
+        "url": "http://hn.algolia.com/api/v1/search",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "tags",
+              "value": "front_page"
+            },
+            {
+              "name": "hitsPerPage",
+              "value": "15"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "hn-topics",
+      "name": "Get trending topics",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-560, 240]
+    },
+    {
+      "parameters": {
+        "url": "https://api.github.com/repos/vibhuvV/portfolio/contents/app/blogs",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "githubApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "ref",
+              "value": "main"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "gh-list",
+      "name": "List existing blogs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-340, 240],
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const hits = ($('Get trending topics').first().json.hits || [])\n  .filter(h => (h.points || 0) >= 50 && String(h.title || '').trim().split(/\\s+/).length >= 4)\n  .sort((a, b) => b.points - a.points);\n\nif (!hits.length) {\n  throw new Error('No suitable trending topics found');\n}\n\nconst raw = $('List existing blogs').all().map(i => i.json);\nconst list = raw.length === 1 && Array.isArray(raw[0]) ? raw[0] : raw;\nconst existing = list.map(f => f.name || '').filter(Boolean).map(n => n.replace(/\\.md$/, ''));\n\nconst STOP = new Set(['the', 'and', 'for', 'with', 'new', 'how', 'why', 'what', 'you', 'your', 'are', 'can', 'will', 'that', 'this', 'from', 'into', 'using', 'best', 'guide', 'tips']);\n\nfunction keywords(slug) {\n  return slug.split('-').filter(w => w.length > 3 && !STOP.has(w));\n}\n\nconst existingWords = new Set(existing.flatMap(keywords));\n\nconst pick = hits.find(h => {\n  const slug = h.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60);\n  const overlap = keywords(slug).filter(w => existingWords.has(w)).length;\n  return overlap <= 1;\n}) || hits[0];\n\nconst today = new Date().toISOString().slice(0, 10);\n\nconst systemPrompt = [\n  'You write technical blog posts for the personal portfolio of a senior frontend engineer (React, TypeScript, CSS, performance, accessibility).',\n  'Voice: first-person, direct, practical, mildly opinionated. Short paragraphs. No hype, no buzzword filler, no \"in today\\'s fast-paced world\".',\n  'Structure: a bold one-line thesis right after front-matter, then \"##\" sections. Include 1-3 focused code blocks (ts/tsx/css/bash) that are correct and runnable.',\n  'Hard rules: never invent metrics, statistics, or personal anecdotes about employers. No named companies. 700-1100 words.',\n  'The post MUST start with YAML front-matter, exactly this shape (double-quoted values):',\n  '---',\n  'title: \"...\"',\n  'description: \"One or two sentences, under 200 characters.\"',\n  'datetime: \"YYYY-MM-DD\"',\n  '---',\n  'Output only the markdown. No preamble, no closing remarks.'\n].join('\\n');\n\nconst userPrompt = [\n  `Write today's post (${today}).`,\n  `Topic (from Hacker News discussion): \"${pick.title}\"`,\n  pick.url ? `Reference for context: ${pick.url}` : '',\n  existing.length ? `Existing posts on this blog (do not repeat their topics): ${existing.join(', ')}` : ''\n].filter(Boolean).join('\\n');\n\nreturn [{ json: { topic: pick.title, url: pick.url || '', today, systemPrompt, userPrompt } }];"
+      },
+      "id": "pick-topic",
+      "name": "Pick topic",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-120, 240]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.z.ai/api/coding/paas/v4/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: 'glm-4.6', temperature: 0.7, max_tokens: 4000, messages: [ { role: 'system', content: $('Pick topic').first().json.systemPrompt }, { role: 'user', content: $('Pick topic').first().json.userPrompt } ] }) }}",
+        "options": {}
+      },
+      "id": "draft-blog",
+      "name": "Draft blog",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [100, 240]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const draft = $('Draft blog').first().json.choices[0].message.content.trim();\nlet content = draft.replace(/^```(markdown|md)?\\s*\\n?/, '').replace(/\\n?```\\s*$/, '').trim();\n\nif (!content.startsWith('---')) {\n  throw new Error('Draft missing front-matter');\n}\n\nconst fm = content.split('---')[1] || '';\nconst title = (fm.match(/title:\\s*\"([^\"]+)\"/) || [])[1];\nconst description = (fm.match(/description:\\s*\"([^\"]+)\"/) || [])[1];\nlet datetime = (fm.match(/datetime:\\s*\"?(\\d{4}-\\d{2}-\\d{2})\"?/) || [])[1];\n\nif (!title || !description) {\n  throw new Error('Front-matter missing title or description');\n}\n\nconst today = $('Pick topic').first().json.today;\nif (!datetime) datetime = today;\n\n// normalize datetime to the quoted format the site expects\ncontent = content.replace(/datetime:.*/, `datetime: \"${datetime}\"`);\n\nconst raw = $('List existing blogs').all().map(i => i.json);\nconst list = raw.length === 1 && Array.isArray(raw[0]) ? raw[0] : raw;\nconst existing = list.map(f => f.name || '').filter(Boolean).map(n => n.replace(/\\.md$/, ''));\nlet slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60).replace(/-+$/, '');\nif (!slug) slug = `post-${today}`;\nif (existing.includes(slug)) slug = `${slug}-${datetime}`;\n\nconst message = `blog: add \"${title}\" (auto-generated via n8n - review before sharing)`;\n\nreturn [{ json: { slug, title, datetime, message, base64: Buffer.from(content, 'utf8').toString('base64') } }];"
+      },
+      "id": "validate-slug",
+      "name": "Validate & slug",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [320, 240]
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://api.github.com/repos/vibhuvV/portfolio/contents/app/blogs/{{ $json.slug }}.md",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "githubApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/vnd.github+json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $json.message, content: $json.base64, branch: 'main' }) }}",
+        "options": {}
+      },
+      "id": "gh-commit",
+      "name": "Commit to GitHub",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [540, 240]
+    }
+  ],
+  "connections": {
+    "When clicked": {
+      "main": [
+        [
+          {
+            "node": "Get trending topics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get trending topics": {
+      "main": [
+        [
+          {
+            "node": "List existing blogs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List existing blogs": {
+      "main": [
+        [
+          {
+            "node": "Pick topic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick topic": {
+      "main": [
+        [
+          {
+            "node": "Draft blog",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Draft blog": {
+      "main": [
+        [
+          {
+            "node": "Validate & slug",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate & slug": {
+      "main": [
+        [
+          {
+            "node": "Commit to GitHub",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}

@@ -1,4 +1,4 @@
-import { Link, NavLink } from "react-router";
+import { NavLink } from "react-router";
 import { MY_DETAILS } from "~/lib/constants";
 import { ThemeToggle } from "~/components/ThemeToggle";
 import { cn } from "~/lib/utils";
@@ -10,15 +10,16 @@ export function Navbar() {
         aria-label="Main navigation"
         className="mx-auto flex h-14 max-w-4xl items-center justify-between px-4 sm:px-6"
       >
-        <Link
-          to="/"
+        {/* Raw anchor is intentional: client-side navigation to "/" misbehaves on GitHub Pages */}
+        <a
+          href="/portfolio"
           className="text-sm font-semibold tracking-tight text-ink transition-colors duration-200 hover:text-accent"
         >
           {MY_DETAILS.name}
           <span aria-hidden="true" className="text-accent">
             .
           </span>
-        </Link>
+        </a>
         <div className="flex items-center gap-5 text-sm">
           <NavLink
             to="/blogs"

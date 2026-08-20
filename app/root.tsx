@@ -1,6 +1,5 @@
 import {
   isRouteErrorResponse,
-  Link,
   Links,
   Meta,
   Outlet,
@@ -94,12 +93,13 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
         {message}
       </h1>
       <p className="mt-4 text-muted">{details}</p>
-      <Link
-        to="/"
+      {/* Raw anchor is intentional: client-side navigation to "/" misbehaves on GitHub Pages */}
+      <a
+        href="/portfolio"
         className="mt-8 inline-flex items-center rounded-full border border-line bg-surface px-5 py-2.5 text-sm font-medium text-body transition-colors duration-200 hover:border-faint hover:text-ink"
       >
         &larr; Back to home
-      </Link>
+      </a>
       {stack && (
         <pre className="mt-8 w-full overflow-x-auto rounded-lg border border-line bg-surface p-4 text-left text-xs text-muted">
           <code>{stack}</code>
